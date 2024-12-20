@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512" x="0" y="0" viewBox="0 0 24 24" style="enable-background:new 0 0 512 512" xml:space="preserve">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <g filter="url(#glow)">
+    <g fill="#FE3D58" fill-rule="evenodd" clip-rule="evenodd">
+      <path d="M8.135 4.513a.5.5 0 0 1 .539.222L9.777 6.5h4.446l1.103-1.765a.5.5 0 0 1 .538-.222l4.25 1a.5.5 0 0 1 .36.329l1.461 4.383a11 11 0 0 1 .565 3.479V18a.5.5 0 0 1-.314.464l-5 2a.5.5 0 0 1-.54-.11L14.793 18.5H9.207l-1.853 1.854a.5.5 0 0 1-.54.11l-5-2A.5.5 0 0 1 1.5 18v-4.296a11 11 0 0 1 .564-3.479l1.462-4.383a.5.5 0 0 1 .36-.329zm-3.749 1.91-1.373 4.119a10 10 0 0 0-.513 3.162v3.957l4.38 1.752 1.766-1.767A.5.5 0 0 1 9 17.5h6a.5.5 0 0 1 .354.146l1.766 1.767 4.38-1.752v-3.957a10 10 0 0 0-.513-3.162l-1.373-4.12-3.63-.853-1.06 1.696a.5.5 0 0 1-.424.235h-5a.5.5 0 0 1-.424-.235l-1.06-1.696z" fill="#FE3D58" opacity="1"></path>
+      <path d="M15.5 12a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0zM8.5 12a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" fill="#FE3D58" opacity="1"></path>
+    </g>
+  </g>
+</svg>
