@@ -809,6 +809,12 @@ main {
   opacity: 0.7;
 }
 
+  .modal .close {
+    color: var(--orange-yellow-crayola); /* Change this to your preferred color */
+    font-size: 20px; /* Adjust the font size if needed */
+    cursor: pointer;
+  }
+
 .modal-close-btn:hover,
 .modal-close-btn:focus {
   opacity: 1;

@@ -32,9 +32,9 @@ document.getElementById('contactForm').addEventListener('submit', function(event
 
 function SendMail() {
   var params = {
-    from_name: document.getElementById("fullName").value,
-    email_id: document.getElementById("email_id").value,
-    message: document.getElementById("message").value,
+    from_name: sanitize(document.getElementById("fullName").value),
+    email_id: sanitize(document.getElementById("email_id").value),
+    message: sanitize(document.getElementById("message").value),
   };
 
   emailjs.send("service_oll3cu6", "template_gb7sb08", params).then(
@@ -68,3 +68,9 @@ grecaptcha.ready(function() {
     document.getElementById('g-recaptcha-response').value = token;
   });
 });
+
+function sanitize(input) {
+  const element = document.createElement('div');
+  element.innerText = input;
+  return element.innerHTML;
+}
