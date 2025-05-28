@@ -1,4 +1,4 @@
-Name: Portfolio CI/CD Pipeline
+name: Portfolio CI/CD Pipeline
 
 on:
   push:
@@ -115,17 +115,21 @@ jobs:
             echo "No high or critical vulnerabilities found"
           fi
 
-  # Vercel deployment (runs first)
+  # Vercel deployment
   deploy-vercel:
     runs-on: ubuntu-latest
     needs: [quality-checks, security-audit]
     if: always() && needs.quality-checks.result == 'success' && (needs.security-audit.result == 'success' || needs.security-audit.result == 'skipped')
+    outputs:
+      preview-url: ${{ steps.vercel-preview.outputs.preview-url }}
+      production-url: ${{ steps.vercel-production.outputs.preview-url }}
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         
       - name: Deploy to Vercel (Preview)
+        id: vercel-preview
         if: github.event_name == 'pull_request'
         uses: amondnet/vercel-action@v25
         with:
@@ -138,6 +142,7 @@ jobs:
             pr-${{ github.event.number }}-portfolio.vercel.app
             
       - name: Deploy to Vercel (Production)
+        id: vercel-production
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: amondnet/vercel-action@v25
         with:
@@ -148,19 +153,60 @@ jobs:
           working-directory: ./
           scope: ${{ secrets.VERCEL_ORG_ID }}
 
+      - name: Comment PR with preview URL
+        if: github.event_name == 'pull_request' && steps.vercel-preview.outputs.preview-url
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deploymentUrl = '${{ steps.vercel-preview.outputs.preview-url }}';
+            const comment = `## 🚀 Preview Deployment
+            
+            Your changes have been deployed to Vercel:
+            
+            **Preview URL:** ${deploymentUrl}
+            
+            ---
+            *Deployed from commit: ${{ github.sha }}*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
   # Post-deployment checks
   post-deploy-checks:
     runs-on: ubuntu-latest
-    needs: [deploy-vercel] # Removed deploy-netlify from needs
-    if: always() && (needs.deploy-vercel.result == 'success') # Adjusted condition
+    needs: [deploy-vercel]
+    if: always() && needs.deploy-vercel.result == 'success'
     
     steps:
-      - name: Health check endpoints
+      - name: Health check Vercel deployment
         run: |
           echo "Performing post-deployment health checks..."
           
-          # Add your domain health checks here
-          # curl -f https://your-domain.vercel.app/health || echo "Vercel health check failed"
+          # Health check for preview deployment
+          if [ "${{ github.event_name }}" == "pull_request" ] && [ -n "${{ needs.deploy-vercel.outputs.preview-url }}" ]; then
+            echo "Checking preview deployment..."
+            PREVIEW_URL="${{ needs.deploy-vercel.outputs.preview-url }}"
+            if curl -f "$PREVIEW_URL" > /dev/null 2>&1; then
+              echo "✅ Preview deployment is healthy: $PREVIEW_URL"
+            else
+              echo "⚠️ Preview deployment health check failed: $PREVIEW_URL"
+            fi
+          fi
+          
+          # Health check for production deployment
+          if [ "${{ github.ref }}" == "refs/heads/main" ] && [ "${{ github.event_name }}" == "push" ] && [ -n "${{ needs.deploy-vercel.outputs.production-url }}" ]; then
+            echo "Checking production deployment..."
+            PROD_URL="${{ needs.deploy-vercel.outputs.production-url }}"
+            if curl -f "$PROD_URL" > /dev/null 2>&1; then
+              echo "✅ Production deployment is healthy: $PROD_URL"
+            else
+              echo "⚠️ Production deployment health check failed: $PROD_URL"
+            fi
+          fi
           
           echo "Health checks completed"
           
@@ -168,12 +214,43 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           echo "🚀 Production deployment completed successfully!"
-          echo "Vercel: ${{ needs.deploy-vercel.result }}"
+          echo "Vercel Status: ${{ needs.deploy-vercel.result }}"
+          echo "Deployment URL: ${{ needs.deploy-vercel.outputs.production-url }}"
 
-  # Cleanup job - Simplified to avoid permission issues
+      - name: Create deployment summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "### Preview Deployment" >> $GITHUB_STEP_SUMMARY
+            echo "- **Platform:** Vercel" >> $GITHUB_STEP_SUMMARY
+            echo "- **Status:** ${{ needs.deploy-vercel.result }}" >> $GITHUB_STEP_SUMMARY
+            if [ -n "${{ needs.deploy-vercel.outputs.preview-url }}" ]; then
+              echo "- **URL:** [${{ needs.deploy-vercel.outputs.preview-url }}](${{ needs.deploy-vercel.outputs.preview-url }})" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "### Production Deployment" >> $GITHUB_STEP_SUMMARY
+            echo "- **Platform:** Vercel" >> $GITHUB_STEP_SUMMARY
+            echo "- **Status:** ${{ needs.deploy-vercel.result }}" >> $GITHUB_STEP_SUMMARY
+            if [ -n "${{ needs.deploy-vercel.outputs.production-url }}" ]; then
+              echo "- **URL:** [${{ needs.deploy-vercel.outputs.production-url }}](${{ needs.deploy-vercel.outputs.production-url }})" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Workflow completed at $(date)*" >> $GITHUB_STEP_SUMMARY
+
+  # Cleanup job
   cleanup:
     runs-on: ubuntu-latest
-    needs: [deploy-vercel, post-deploy-checks] # Removed deploy-netlify from needs
+    needs: [deploy-vercel, post-deploy-checks]
     if: always()
     
     steps:
@@ -182,3 +259,12 @@ jobs:
           echo "🧹 Cleanup job completed"
           echo "Build artifacts will be automatically cleaned up after retention period"
           echo "Manual cleanup can be done through GitHub UI if needed"
+          
+      - name: Workflow completion
+        run: |
+          echo "✅ Portfolio CI/CD Pipeline completed"
+          echo "Overall Status:"
+          echo "- Quality Checks: Completed"
+          echo "- Security Audit: Completed" 
+          echo "- Vercel Deployment: ${{ needs.deploy-vercel.result }}"
+          echo "- Post-deploy Checks: ${{ needs.post-deploy-checks.result }}"
