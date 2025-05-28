@@ -6,6 +6,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, useDr
 const navItems = [
   { path: '/', label: 'Home', icon: <Home className="w-5 h-5" /> },
   { path: '/about', label: 'About', icon: <User className="w-5 h-5" /> },
+  { path: '/projects', label: 'Projects', icon: <Briefcase className="w-5 h-5" /> },
   { path: '/contact', label: 'Contact', icon: <Mail className="w-5 h-5" /> },
 ];
 
@@ -161,7 +162,7 @@ const AdvancedNavItem = ({ item, isActive, onClick }) => {
       <NavLink
         to={item.path}
         onClick={handleClick}
-        className={`nav-item relative ${isActive ? 'active' : 'text-dark-100 hover:text-white'}`}
+        className={({ isActive: linkIsActive }) => `nav-item relative ${linkIsActive ? 'active' : 'text-dark-100 hover:text-white'}`}
       >
         <motion.div
           animate={isActive ? { rotate: [0, -10, 10, 0] } : {}}
@@ -538,6 +539,12 @@ const Navbar = () => {
   const [navScale, setNavScale] = useState(1);
   const isMoreActive = moreMenuItems.some(item => item.path === location.pathname);
 
+  // Check if current path is a project detail page
+  const isProjectDetailPage = location.pathname.startsWith('/project/');
+
+  // Determine if Projects tab should be active
+  const isProjectsActive = location.pathname === '/projects' || isProjectDetailPage;
+
   // Scroll to top when route changes
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -598,7 +605,7 @@ const Navbar = () => {
               <AdvancedNavItem
                 key={item.path}
                 item={item}
-                isActive={location.pathname === item.path}
+                isActive={item.path === '/projects' ? isProjectsActive : location.pathname === item.path}
               />
             ))}
             
