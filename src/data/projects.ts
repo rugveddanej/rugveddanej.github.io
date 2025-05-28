@@ -1,5 +1,5 @@
 import { Project } from '../types/project'; // Adjust path if needed
-
+import p1 from '../assets/projects/website.jpg';
 const projects: Project[] = [
   {
     id: 1,
@@ -11,7 +11,7 @@ const projects: Project[] = [
       it serves as a central hub for my professional online presence. 
       It's built with modern web technologies to ensure a smooth user experience.
     `,
-    image: 'https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg', // Placeholder image
+    image: p1,
     technologies: ['React', 'TypeScript', 'Vite', 'Tailwind CSS'],
     features: [
       'Responsive design for all devices',

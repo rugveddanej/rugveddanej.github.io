@@ -7,6 +7,8 @@ import Skills from '../components/Skills';
 import Timeline from '../components/Timeline';
 import skillsData from '../data/skills';
 import experiencesData from '../data/experiences';
+import avatarImage from '../assets/avatar/avatar_circle.png';
+
 
 const About: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -156,7 +158,7 @@ const About: React.FC = () => {
                   />
                   <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary-500/10 to-accent-500/10 blur-md opacity-70 group-hover:opacity-100 transition-opacity" />
                   <img
-                    src="https://images.pexels.com/photos/31925290/pexels-photo-31925290.png"
+                    src={avatarImage}
                     alt="Rugved Danej"
                     className="relative rounded-full w-full h-full object-cover border-4 border-dark-800 z-10"
                   />

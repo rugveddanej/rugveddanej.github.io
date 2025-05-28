@@ -4,6 +4,7 @@ import { Star, Code2, Calendar, Award, TrendingUp, Quote } from 'lucide-react';
 import PageTransition from '../components/PageTransition';
 import SectionTitle from '../components/SectionTitle';
 import SkeletonLoader from '../components/SkeletonLoader';
+import fav1 from '../assets/feedbacks/ava_max.jpeg';
 
 interface Testimonial {
   id: number;
@@ -113,7 +114,7 @@ const testimonials: Testimonial[] = [
     message: "Rugved developed a Discord bot for my server, and the results were outstanding. His attention to detail, clean coding practices, and timely delivery made the entire process seamless.",
     longMessage: "Rugved developed a Discord bot for my server, and the results were outstanding. His attention to detail, clean coding practices, and timely delivery made the entire process seamless. The bot has significantly improved our server's productivity and automated several key functions, which has enhanced user experience and efficiency.",
     rating: 5.0,
-    image: "https://images.pexels.com/photos/32046431/pexels-photo-32046431.jpeg",
+    image: fav1,
     project: "Discord Bot",
     projectType: "bot",
     completionDate: "2024-05-05",

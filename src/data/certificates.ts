@@ -1,4 +1,5 @@
 import { CertificateProps } from '../components/CertificateCard';
+import c1 from '../assets/certificates/certificate1.jpg';
 
 const certificates: CertificateProps[] = [
   {
@@ -7,7 +8,7 @@ const certificates: CertificateProps[] = [
     issuer: "freeCodeCamp",
     issueDate: "2025-05-23",
     credentialUrl: "https://www.freecodecamp.org/certification/rugveddanej/responsive-web-design",
-    image: "https://images.pexels.com/photos/32223034/pexels-photo-32223034.jpeg",
+    image: c1,
     skills: ["HTML", "CSS", "Responsive Design", "Flexbox", "Grid Layout", "Media Queries"],
     description: "Comprehensive certification covering modern responsive web design principles, including HTML5 semantic elements, CSS3 advanced features, and mobile-first design methodologies.",
     hours: 300,

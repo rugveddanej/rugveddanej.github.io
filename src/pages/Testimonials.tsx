@@ -4,6 +4,7 @@ import { Star, Code2, Calendar, Award, TrendingUp, Quote } from 'lucide-react';
 import PageTransition from '../components/PageTransition';
 import SectionTitle from '../components/SectionTitle';
 import SkeletonLoader from '../components/SkeletonLoader';
+import tav1 from '../assets/testimonials/luna_foster.jpeg';
 
 interface Testimonial {
   id: number;
@@ -109,9 +110,9 @@ const testimonials: Testimonial[] = [
     name: "Luna Foster",
     position: "Project Manager",
     message: "Rugved turned our vision for a dynamic blogging platform into a sleek, high-performing product. His precision and technical skill made the process seamless and the outcome exceptional.",
-    longMessage: "Rugved brought our idea of a feature-rich blogging platform to life with remarkable professionalism. His technical skills in React, Node.js, and MongoDB were instrumental in creating a smooth, responsive experience. He was proactive, always open to feedback, and delivered every milestone on time. Post-launch, we saw a +180% increase in user engagement—clear proof of the platform’s impact. Working with Rugved was a seamless and rewarding experience.",
+    longMessage: "Rugved brought our idea of a feature-rich blogging platform to life with remarkable professionalism. His technical skills in React, Node.js, and MongoDB were instrumental in creating a smooth, responsive experience. He was proactive, always open to feedback, and delivered every milestone on time. Post-launch, we saw a +150% increase in user engagement—clear proof of the platform’s impact. Working with Rugved was a seamless and rewarding experience.",
     rating: 5.0,
-    image: "https://images.pexels.com/photos/32046486/pexels-photo-32046486.jpeg",
+    image: tav1,
     project: "Blogging Platform",
     projectType: "web",
     completionDate: "2024-07-15",
