@@ -1,4 +1,4 @@
-name: Portfolio CI/CD Pipeline
+Name: Portfolio CI/CD Pipeline
 
 on:
   push:
@@ -148,60 +148,11 @@ jobs:
           working-directory: ./
           scope: ${{ secrets.VERCEL_ORG_ID }}
 
-  # Netlify deployment (runs after Vercel)
-  deploy-netlify:
-    runs-on: ubuntu-latest
-    needs: [quality-checks, security-audit, deploy-vercel]
-    if: always() && needs.quality-checks.result == 'success' && (needs.security-audit.result == 'success' || needs.security-audit.result == 'skipped')
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-files-${{ github.run_id }}
-          path: dist/
-          
-      - name: Verify build files
-        run: |
-          echo "Contents of current directory:"
-          ls -la
-          echo "Contents of dist directory:"
-          ls -la dist/ || echo "dist directory not found"
-          
-      - name: Deploy to Netlify (Preview)
-        if: github.event_name == 'pull_request'
-        uses: nwtgck/actions-netlify@v3.0
-        with:
-          publish-dir: './dist'
-          production-branch: main
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Preview deploy from PR #${{ github.event.number }}"
-          alias: pr-${{ github.event.number }}-${{ github.event.pull_request.head.sha }}
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          
-      - name: Deploy to Netlify (Production)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: nwtgck/actions-netlify@v3.0
-        with:
-          publish-dir: './dist'
-          production-branch: main
-          production-deploy: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Production deploy from main branch"
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-
   # Post-deployment checks
   post-deploy-checks:
     runs-on: ubuntu-latest
-    needs: [deploy-vercel, deploy-netlify]
-    if: always() && (needs.deploy-vercel.result == 'success' || needs.deploy-netlify.result == 'success')
+    needs: [deploy-vercel] # Removed deploy-netlify from needs
+    if: always() && (needs.deploy-vercel.result == 'success') # Adjusted condition
     
     steps:
       - name: Health check endpoints
@@ -209,7 +160,6 @@ jobs:
           echo "Performing post-deployment health checks..."
           
           # Add your domain health checks here
-          # curl -f https://your-domain.netlify.app/health || echo "Netlify health check failed"
           # curl -f https://your-domain.vercel.app/health || echo "Vercel health check failed"
           
           echo "Health checks completed"
@@ -219,12 +169,11 @@ jobs:
         run: |
           echo "🚀 Production deployment completed successfully!"
           echo "Vercel: ${{ needs.deploy-vercel.result }}"
-          echo "Netlify: ${{ needs.deploy-netlify.result }}"
 
   # Cleanup job - Simplified to avoid permission issues
   cleanup:
     runs-on: ubuntu-latest
-    needs: [deploy-vercel, deploy-netlify, post-deploy-checks]
+    needs: [deploy-vercel, post-deploy-checks] # Removed deploy-netlify from needs
     if: always()
     
     steps:
