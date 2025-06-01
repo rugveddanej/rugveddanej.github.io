@@ -23,7 +23,7 @@ const projects: Project[] = [
       uptime: '99.9%'
     },
     demoUrl: 'https://yourportfolio.com', // Replace with your actual URL
-    githubUrl: 'https://github.com/yourusername/your-portfolio', // Replace with your actual GitHub repo
+    githubUrl: '404', // Replace with your actual GitHub repo
     category: 'web',
     status: 'completed',
     completionDate: '2025-04-28' // Assuming you're completing it now!
