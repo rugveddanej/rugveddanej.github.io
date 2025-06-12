@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    
+    <!-- Basic Meta Tags -->
+    <link rel="icon" type="image/png" href="/src/assets/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Rugved Danej's Portfolio - Creative Developer & Designer specializing in modern web applications, UI/UX design, and innovative digital solutions." />
+    <meta name="keywords" content="Rugved Danej, Portfolio, Web Developer, UI/UX Designer, React Developer, Frontend Developer, Creative Developer" />
+    <meta name="author" content="Rugved Danej" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://rugvedanej.vercel.app" />
+    
+    <!-- Open Graph Meta Tags (Primary for Discord) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Rugved Danej Portfolio" />
+    <meta property="og:title" content="Rugved Danej | Creative Developer & Designer" />
+    <meta property="og:description" content="🚀 Passionate developer crafting innovative web experiences with React, TypeScript, and modern design principles. Explore my projects and creative journey!" />
+    <meta property="og:url" content="https://rugvedanej.vercel.app" />
+    <meta property="og:image" content="https://rugvedanej.vercel.app/og-image.png" />
+    <meta property="og:image:alt" content="Rugved Danej - Creative Developer Portfolio Preview" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:locale" content="en_US" />
+    
+    <!-- Twitter Card Meta Tags (Enhanced Discord compatibility) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@rugvedanej" />
+    <meta name="twitter:creator" content="@rugvedanej" />
+    <meta name="twitter:title" content="Rugved Danej | Creative Developer & Designer" />
+    <meta name="twitter:description" content="🚀 Passionate developer crafting innovative web experiences with React, TypeScript, and modern design principles. Explore my projects and creative journey!" />
+    <meta name="twitter:image" content="https://rugvedanej.vercel.app/og-image.png" />
+    <meta name="twitter:image:alt" content="Rugved Danej - Creative Developer Portfolio Preview" />
+    
+    <!-- Discord-specific enhancements -->
+    <meta property="og:video" content="https://rugvedanej.vercel.app/portfolio-demo.mp4" />
+    <meta property="og:video:type" content="video/mp4" />
+    <meta property="og:video:width" content="1280" />
+    <meta property="og:video:height" content="720" />
+    
+    <!-- Additional Rich Embed Data -->
+    <meta name="theme-color" content="#ee5554" />
+    <meta name="msapplication-TileColor" content="#ee5554" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    
+    <!-- Structured Data for Rich Results -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Rugved Danej",
+      "jobTitle": "Creative Developer & Designer",
+      "description": "Passionate developer crafting innovative web experiences with React, TypeScript, and modern design principles.",
+      "url": "https://rugvedanej.vercel.app",
+      "image": "https://rugvedanej.vercel.app/og-image.png",
+      "sameAs": [
+        "https://github.com/rugvedanej",
+        "https://linkedin.com/in/rugvedanej",
+        "https://twitter.com/rugvedanej"
+      ],
+      "knowsAbout": [
+        "Web Development",
+        "React",
+        "TypeScript",
+        "UI/UX Design",
+        "Frontend Development",
+        "JavaScript"
+      ],
+      "alumniOf": {
+        "@type": "EducationalOrganization",
+        "name": "Your University/College"
+      }
+    }
+    </script>
+    
+    <!-- Disable right-click and keyboard shortcuts -->
+    <script>
+      document.addEventListener('contextmenu', (e) => e.preventDefault());
+      // Disable keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 's' || e.key === 'u' || e.key === 'p')) {
+          e.preventDefault();
+        }
+      });
+      
+      // Enhanced Discord embed detection
+      window.addEventListener('load', () => {
+        // Add special handling for Discord bot crawlers
+        const userAgent = navigator.userAgent.toLowerCase();
+        if (userAgent.includes('discordbot') || userAgent.includes('twitterbot') || userAgent.includes('facebookexternalhit')) {
+          // Ensure all meta tags are properly loaded for crawlers
+          const metaRefresh = document.createElement('meta');
+          metaRefresh.httpEquiv = 'refresh';
+          metaRefresh.content = '0';
+          document.head.appendChild(metaRefresh);
+        }
+      });
+    </script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-052CYE4HZZ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-052CYE4HZZ');
+    </script>
+    
+    <title>Rugved Danej | Creative Developer & Designer Portfolio</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="/og-image.png" as="image" type="image/png">
+    
+    <!-- Additional Icons for Rich Embedding -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <!-- Prefetch DNS for external resources -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//www.googletagmanager.com">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Fallback content for crawlers -->
+    <noscript>
+      <div style="text-align: center; padding: 50px; font-family: Inter, sans-serif;">
+        <h1>Rugved Danej - Creative Developer & Designer</h1>
+        <p>Passionate developer crafting innovative web experiences with React, TypeScript, and modern design principles.</p>
+        <p>Visit <a href="https://rugvedanej.vercel.app">rugvedanej.vercel.app</a> to explore my portfolio.</p>
+      </div>
+    </noscript>
+  </body>
+</html>
