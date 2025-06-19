@@ -1,5 +1,5 @@
 import { CertificateProps } from '../components/CertificateCard';
-import c1 from '../assets/certificates/www.freecodecamp.org_certification_rugveddanej_responsive-web-design.png';
+import c1 from '../assets/certificates/www.freecodecamp.org_certification_rugved_danej_responsive-web-design.png';
 import c2 from '../assets/certificates/www.freecodecamp.org_certification_rugveddanej_javascript-algorithms-and-data-structures.png';
 import c3 from '../assets/certificates/www.freecodecamp.org_certification_rugveddanej_front-end-development-libraries.png';
 import c4 from '../assets/certificates/www.freecodecamp.org_certification_rugveddanej_data-visualization.png';
@@ -9,8 +9,8 @@ const certificates: CertificateProps[] = [
     id: 1,
     title: "Responsive Web Design",
     issuer: "freeCodeCamp",
-    issueDate: "2025-05-23",
-    credentialUrl: "https://www.freecodecamp.org/certification/rugveddanej/responsive-web-design",
+    issueDate: "2025-06-19",
+    credentialUrl: "https://www.freecodecamp.org/certification/rugved_danej/responsive-web-design",
     image: c1,
     skills: ["HTML", "CSS", "Responsive Design", "Flexbox", "Grid Layout", "Media Queries"],
     description: "Comprehensive certification covering modern responsive web design principles, including HTML5 semantic elements, CSS3 advanced features, and mobile-first design methodologies.",
