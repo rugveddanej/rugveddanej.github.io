@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import PageTransition from '../components/PageTransition';
 import SectionTitle from '../components/SectionTitle';
@@ -7,9 +7,9 @@ import SearchBar from '../components/SearchBar';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { CertificateProps } from '../components/CertificateCard';
 
-// API service
+// API service with better error handling and typing
 const certificatesAPI = {
-  baseURL: 'https://rugvedapi.onrender.com/api', // Change this to your API URL
+  baseURL: 'https://rugvedapi.onrender.com/api',
   
   async fetchCertificates(): Promise<CertificateProps[]> {
     try {
@@ -21,11 +21,23 @@ const certificatesAPI = {
       
       const result = await response.json();
       
-      if (result.success) {
-        return result.data;
-      } else {
-        throw new Error(result.error || 'Failed to fetch certificates');
+      if (result.success && Array.isArray(result.data)) {
+        return result.data.map((cert: any) => ({
+          ...cert,
+          // Ensure all required fields are present
+          id: cert.id || 0,
+          title: cert.title || '',
+          issuer: cert.issuer || '',
+          issueDate: cert.issueDate || '',
+          credentialUrl: cert.credentialUrl || '',
+          image: cert.image || '',
+          skills: Array.isArray(cert.skills) ? cert.skills : [],
+          description: cert.description || '',
+          hours: cert.hours || 0,
+          verified: cert.verified || false
+        }));
       }
+      throw new Error(result.error || 'Invalid data format received');
     } catch (error) {
       console.error('Error fetching certificates:', error);
       throw error;
@@ -40,40 +52,28 @@ const Certificates: React.FC = () => {
   const [allCertificates, setAllCertificates] = useState<CertificateProps[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  // Memoized fetch function
+  const fetchCertificates = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const data = await certificatesAPI.fetchCertificates();
+      
+      setAllCertificates(data);
+      setCertificates(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load certificates');
+      console.error('Failed to load certificates:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // Fetch certificates from API
   useEffect(() => {
-    const loadCertificates = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const data = await certificatesAPI.fetchCertificates();
-        
-        // Convert image paths to require() imports for local assets
-        const processedData = data.map(cert => ({
-          ...cert,
-          // You might need to adjust this based on how you handle images
-          image: cert.image // Keep as string path for now
-        }));
-        
-        setAllCertificates(processedData);
-        setCertificates(processedData);
-        
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load certificates');
-        console.error('Failed to load certificates:', err);
-        
-        // Fallback: you could load local data here if API fails
-        // setAllCertificates(certificatesData);
-        // setCertificates(certificatesData);
-        
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadCertificates();
-  }, []);
+    fetchCertificates();
+  }, [fetchCertificates]);
 
   // Filter certificates based on search query
   useEffect(() => {
@@ -82,8 +82,8 @@ const Certificates: React.FC = () => {
       return;
     }
 
+    const searchLower = searchQuery.toLowerCase();
     const filteredCertificates = allCertificates.filter((certificate) => {
-      const searchLower = searchQuery.toLowerCase();
       return (
         certificate.title.toLowerCase().includes(searchLower) ||
         certificate.issuer.toLowerCase().includes(searchLower) ||
@@ -94,39 +94,85 @@ const Certificates: React.FC = () => {
     setCertificates(filteredCertificates);
   }, [searchQuery, allCertificates]);
 
-  // Error state
-  if (error && !loading) {
-    return (
-      <PageTransition>
-        <section className="section-container">
-          <SectionTitle 
-            title="Certificates & Courses" 
-            subtitle="A collection of my professional certifications and completed courses"
-            centered
+  // Error state component
+  const renderErrorState = () => (
+    <PageTransition>
+      <section className="section-container">
+        <SectionTitle 
+          title="Certificates & Courses" 
+          subtitle="A collection of my professional certifications and completed courses"
+          centered
+        />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center py-12"
+        >
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-md mx-auto">
+            <h3 className="text-red-800 dark:text-red-400 font-semibold mb-2">
+              Failed to Load Certificates
+            </h3>
+            <p className="text-red-600 dark:text-red-300 text-sm">
+              {error}
+            </p>
+            <button 
+              onClick={fetchCertificates}
+              className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </motion.div>
+      </section>
+    </PageTransition>
+  );
+
+  // Loading state component
+  const renderLoadingState = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <SkeletonLoader type="project" count={3} />
+    </div>
+  );
+
+  // Empty state component
+  const renderEmptyState = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="col-span-full text-center py-12"
+    >
+      <div className="text-gray-500 dark:text-gray-400">
+        <p className="text-lg font-medium mb-2">No certificates found</p>
+        <p className="text-sm">
+          {searchQuery ? 'Try adjusting your search terms.' : 'No certificates available at the moment.'}
+        </p>
+      </div>
+    </motion.div>
+  );
+
+  // Main content component
+  const renderContent = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+    >
+      {certificates.length === 0 ? 
+        renderEmptyState() : 
+        certificates.map((certificate, index) => (
+          <CertificateCard
+            key={`${certificate.id}-${index}`}
+            certificate={certificate}
+            index={index}
           />
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-12"
-          >
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-md mx-auto">
-              <h3 className="text-red-800 dark:text-red-400 font-semibold mb-2">
-                Failed to Load Certificates
-              </h3>
-              <p className="text-red-600 dark:text-red-300 text-sm">
-                {error}
-              </p>
-              <button 
-                onClick={() => window.location.reload()}
-                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Retry
-              </button>
-            </div>
-          </motion.div>
-        </section>
-      </PageTransition>
-    );
+        ))
+      }
+    </motion.div>
+  );
+
+  if (error && !loading) {
+    return renderErrorState();
   }
 
   return (
@@ -146,47 +192,13 @@ const Certificates: React.FC = () => {
         >
           <SearchBar
             value={searchQuery}
-            onChange={setSearchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search certificates by title, issuer, or skills..."
             disabled={loading}
           />
         </motion.div>
         
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <SkeletonLoader type="project" count={3} />
-          </div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {certificates.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="col-span-full text-center py-12"
-              >
-                <div className="text-gray-500 dark:text-gray-400">
-                  <p className="text-lg font-medium mb-2">No certificates found</p>
-                  <p className="text-sm">
-                    {searchQuery ? 'Try adjusting your search terms.' : 'No certificates available at the moment.'}
-                  </p>
-                </div>
-              </motion.div>
-            ) : (
-              certificates.map((certificate, index) => (
-                <CertificateCard
-                  key={certificate.id}
-                  certificate={certificate}
-                  index={index}
-                />
-              ))
-            )}
-          </motion.div>
-        )}
+        {loading ? renderLoadingState() : renderContent()}
       </section>
     </PageTransition>
   );
