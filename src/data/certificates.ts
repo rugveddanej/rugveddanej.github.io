@@ -1,4 +1,9 @@
 import { CertificateProps } from '../components/CertificateCard';
+
+// API configuration
+const API_BASE_URL = 'https://rugvedapi.onrender.com';
+
+// Certificate ID to image mapping (keeping local images for now)
 import c1 from '../assets/certificates/responsive-web-design.png';
 import c2 from '../assets/certificates/javascript-algorithms-and-data-structures.png';
 import c3 from '../assets/certificates/front-end-development-libraries.png';
@@ -8,7 +13,130 @@ import c6 from '../assets/certificates/foundational-c-sharp-with-microsoft.png';
 import c7 from '../assets/certificates/legacy-front-end.png';
 import c8 from '../assets/certificates/javascript-algorithms-and-data-structures-v8.png';
 
-const certificates: CertificateProps[] = [
+const imageMap: Record<string, string> = {
+  'responsive-web-design': c1,
+  'javascript-algorithms-and-data-structures': c2,
+  'front-end-development-libraries': c3,
+  'data-visualization': c4,
+  'relational-database': c5,
+  'foundational-c-sharp-with-microsoft': c6,
+  'legacy-front-end': c7,
+  'legacy-javascript-algorithms-and-data-structures': c8,
+};
+
+// API response interfaces
+interface ApiCertificate {
+  name: string;
+  issuer: string;
+  date: string;
+  description: string;
+  hours: number;
+  skills: string[];
+  verified: boolean;
+}
+
+interface ApiResponse {
+  status: string;
+  certificate: ApiCertificate;
+}
+
+interface CertificateListResponse {
+  status: string;
+  count: number;
+  certificates: string[];
+}
+
+// Function to fetch certificate data from API
+const fetchCertificateData = async (certId: string): Promise<ApiCertificate | null> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/certificates/${certId}`);
+    if (!response.ok) {
+      console.error(`Failed to fetch certificate ${certId}:`, response.status);
+      return null;
+    }
+    const data: ApiResponse = await response.json();
+    return data.certificate;
+  } catch (error) {
+    console.error(`Error fetching certificate ${certId}:`, error);
+    return null;
+  }
+};
+
+// Function to fetch all certificate IDs
+const fetchCertificateList = async (): Promise<string[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/certificates`);
+    if (!response.ok) {
+      console.error('Failed to fetch certificate list:', response.status);
+      return [];
+    }
+    const data: CertificateListResponse = await response.json();
+    return data.certificates;
+  } catch (error) {
+    console.error('Error fetching certificate list:', error);
+    return [];
+  }
+};
+
+// Function to convert API data to CertificateProps format
+const convertApiToCertificateProps = (
+  apiCert: ApiCertificate, 
+  certId: string, 
+  index: number
+): CertificateProps => {
+  return {
+    id: index + 1,
+    title: apiCert.name,
+    issuer: apiCert.issuer,
+    issueDate: apiCert.date,
+    credentialUrl: `https://www.freecodecamp.org/certification/rugved_danej/${certId}`,
+    image: imageMap[certId] || c1, // Fallback to first image if not found
+    skills: apiCert.skills,
+    description: apiCert.description,
+    hours: apiCert.hours,
+    verified: apiCert.verified,
+  };
+};
+
+// Function to load certificates from API
+export const loadCertificatesFromApi = async (): Promise<CertificateProps[]> => {
+  try {
+    // First, get the list of certificate IDs
+    const certificateIds = await fetchCertificateList();
+    
+    if (certificateIds.length === 0) {
+      console.warn('No certificates found from API, using fallback data');
+      return getFallbackCertificates();
+    }
+
+    // Fetch detailed data for each certificate
+    const certificatePromises = certificateIds.map(async (certId, index) => {
+      const apiCert = await fetchCertificateData(certId);
+      if (!apiCert) {
+        return null;
+      }
+      return convertApiToCertificateProps(apiCert, certId, index);
+    });
+
+    const certificates = await Promise.all(certificatePromises);
+    
+    // Filter out null values (failed requests)
+    const validCertificates = certificates.filter((cert): cert is CertificateProps => cert !== null);
+    
+    if (validCertificates.length === 0) {
+      console.warn('No valid certificates loaded from API, using fallback data');
+      return getFallbackCertificates();
+    }
+
+    return validCertificates;
+  } catch (error) {
+    console.error('Error loading certificates from API:', error);
+    return getFallbackCertificates();
+  }
+};
+
+// Fallback certificates data (in case API is unavailable)
+const getFallbackCertificates = (): CertificateProps[] => [
   {
     id: 1,
     title: "Responsive Web Design",
@@ -61,7 +189,7 @@ const certificates: CertificateProps[] = [
     id: 5,
     title: "Relational Database",
     issuer: "freeCodeCamp",
-    issueDate: "2025-06-13", // Update with actual date
+    issueDate: "2025-06-13",
     credentialUrl: "https://www.freecodecamp.org/certification/rugved_danej/relational-database-v8",
     image: c5,
     skills: ["SQL", "PostgreSQL", "Bash", "Git", "Database Design", "Linux Commands"],
@@ -73,7 +201,7 @@ const certificates: CertificateProps[] = [
     id: 6,
     title: "Foundational C# with Microsoft",
     issuer: "freeCodeCamp & Microsoft",
-    issueDate: "2025-06-13", // Update with actual date
+    issueDate: "2025-06-13",
     credentialUrl: "https://www.freecodecamp.org/certification/rugved_danej/foundational-c-sharp-with-microsoft",
     image: c6,
     skills: ["C#", ".NET", "Object-Oriented Programming", "Variables", "Methods", "Classes"],
@@ -85,7 +213,7 @@ const certificates: CertificateProps[] = [
     id: 7,
     title: "Legacy Front End",
     issuer: "freeCodeCamp",
-    issueDate: "2025-06-13", // Update with actual date
+    issueDate: "2025-06-13",
     credentialUrl: "https://www.freecodecamp.org/certification/rugved_danej/legacy-front-end",
     image: c7,
     skills: ["HTML", "CSS", "JavaScript", "jQuery", "Bootstrap", "Sass"],
@@ -107,4 +235,5 @@ const certificates: CertificateProps[] = [
   }
 ];
 
-export default certificates;
+// Export the API loading function as default
+export default loadCertificatesFromApi;

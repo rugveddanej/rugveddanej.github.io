@@ -5,23 +5,35 @@ import SectionTitle from '../components/SectionTitle';
 import CertificateCard from '../components/CertificateCard';
 import SearchBar from '../components/SearchBar';
 import SkeletonLoader from '../components/SkeletonLoader';
-import certificatesData from '../data/certificates';
+import { loadCertificatesFromApi } from '../data/certificates';
+import { CertificateProps } from '../components/CertificateCard';
 
 const Certificates: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [certificates, setCertificates] = useState(certificatesData);
+  const [certificates, setCertificates] = useState<CertificateProps[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
+    const loadCertificates = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const certificatesData = await loadCertificatesFromApi();
+        setCertificates(certificatesData);
+      } catch (err) {
+        console.error('Failed to load certificates:', err);
+        setError('Failed to load certificates. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
     
-    return () => clearTimeout(timer);
+    loadCertificates();
   }, []);
 
   useEffect(() => {
-    const filteredCertificates = certificatesData.filter((certificate) => {
+    const filteredCertificates = certificates.filter((certificate) => {
       const searchLower = searchQuery.toLowerCase();
       return (
         certificate.title.toLowerCase().includes(searchLower) ||
@@ -30,8 +42,11 @@ const Certificates: React.FC = () => {
       );
     });
 
-    setCertificates(filteredCertificates);
-  }, [searchQuery]);
+    // Only update if we're not loading and have certificates
+    if (!loading && certificates.length > 0) {
+      setCertificates(filteredCertificates);
+    }
+  }, [searchQuery, certificates, loading]);
 
   return (
     <PageTransition>
@@ -58,6 +73,23 @@ const Certificates: React.FC = () => {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <SkeletonLoader type="project" count={3} />
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <div className="bg-red-900/20 border border-red-700 rounded-lg p-6 max-w-md mx-auto">
+              <h3 className="text-red-400 font-semibold mb-2">Error Loading Certificates</h3>
+              <p className="text-red-300 text-sm">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        ) : certificates.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-dark-100">No certificates found matching your search.</p>
           </div>
         ) : (
           <motion.div
